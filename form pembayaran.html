@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pemesanan Barang</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLogzk5VMBt7_OjdZrVhW5rVH8QGW2NM0",
+            authDomain: "formulir-pemesanan-a8d7c.firebaseapp.com",
+            projectId: "formulir-pemesanan-a8d7c",
+            storageBucket: "formulir-pemesanan-a8d7c.appspot.com",
+            messagingSenderId: "1008640646796",
+            appId: "1:1008640646796:web:d199db1a89cae442a625a9",
+            measurementId: "G-MT6FCYNCXZ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Base URL for Firebase Functions
+        const functionsBaseUrl = 'https://asia-east2-formulir-pemesanan-a8d7c.cloudfunctions.net';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const provinceSelect = document.getElementById('province');
+            const citySelect = document.getElementById('city');
+            const districtSelect = document.getElementById('district');
+            const villageSelect = document.getElementById('village');
+
+            // Fetch provinces
+            fetch(`${functionsBaseUrl}/getProvinces`)
+                .then(response => response.json())
+                .then(data => {
+                    const provinces = data.rajaongkir.results;
+                    provinces.forEach(province => {
+                        let option = document.createElement('option');
+                        option.value = province.province_id;
+                        option.textContent = province.province;
+                        provinceSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching provinces:', error));
+
+            // Event listener for province dropdown
+            provinceSelect.addEventListener('change', () => {
+                const provinceId = provinceSelect.value;
+                citySelect.innerHTML = '<option value="">Pilih Kabupaten/Kota</option>';
+                districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+                villageSelect.innerHTML = '<option value="">Pilih Desa</option>';
+
+                if (provinceId) {
+                    fetch(`${functionsBaseUrl}/getCities?provinceId=${provinceId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const cities = data.rajaongkir.results;
+                            cities.forEach(city => {
+                                let option = document.createElement('option');
+                                option.value = city.city_id;
+                                option.textContent = `${city.type} ${city.city_name}`;
+                                citySelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching cities:', error));
+                }
+            });
+
+            // Event listener for city dropdown
+            citySelect.addEventListener('change', () => {
+                const cityId = citySelect.value;
+                districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+                villageSelect.innerHTML = '<option value="">Pilih Desa</option>';
+
+                if (cityId) {
+                    fetch(`${functionsBaseUrl}/getDistricts?cityId=${cityId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const districts = data.rajaongkir.results;
+                            districts.forEach(district => {
+                                let option = document.createElement('option');
+                                option.value = district.district_id;
+                                option.textContent = district.district_name;
+                                districtSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching districts:', error));
+                }
+            });
+
+            // Event listener for district dropdown
+            districtSelect.addEventListener('change', () => {
+                const districtId = districtSelect.value;
+                villageSelect.innerHTML = '<option value="">Pilih Desa</option>';
+
+                if (districtId) {
+                    fetch(`${functionsBaseUrl}/getVillages?districtId=${districtId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const villages = data.rajaongkir.results;
+                            villages.forEach(village => {
+                                let option = document.createElement('option');
+                                option.value = village.village_id;
+                                option.textContent = village.village_name;
+                                villageSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching villages:', error));
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Form Pemesanan Barang</h1>
+    <form>
+        <label for="province">Provinsi:</label>
+        <select id="province" name="province">
+            <option value="">Pilih Provinsi</option>
+        </select>
+        <br>
+
+        <label for="city">Kabupaten/Kota:</label>
+        <select id="city" name="city">
+            <option value="">Pilih Kabupaten/Kota</option>
+        </select>
+        <br>
+
+        <label for="district">Kecamatan:</label>
+        <select id="district" name="district">
+            <option value="">Pilih Kecamatan</option>
+        </select>
+        <br>
+
+        <label for="village">Desa:</label>
+        <select id="village" name="village">
+            <option value="">Pilih Desa</option>
+        </select>
+        <br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
