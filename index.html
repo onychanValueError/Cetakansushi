@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect to Form</title>
-    <script>
-        // Redirect to Firebase Storage URL
-        window.location.href = "https://firebasestorage.googleapis.com/v0/b/formulir-pemesanan-a8d7c.appspot.com/o/form%20pembayaran.html?alt=media";
-    </script>
+    <title>Form Pembayaran</title>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <p>Redirecting to form...</p>
+    <h1>Form Pembayaran</h1>
+    <form id="payment-form">
+        <label for="province">Provinsi:</label>
+        <select id="province" name="province" required>
+            <option value="">Pilih Provinsi</option>
+        </select>
+        <br>
+        <label for="city">Kota/Kabupaten:</label>
+        <select id="city" name="city" required>
+            <option value="">Pilih Kota/Kabupaten</option>
+        </select>
+        <br>
+        <!-- Tambahkan elemen form lainnya sesuai kebutuhan -->
+        <input type="submit" value="Kirim">
+    </form>
 </body>
 </html>
